@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometrische Körper – 3. Klasse</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --wuerfel: #FF6B6B;
+    --quader: #FF9F43;
+    --kugel: #48DBFB;
+    --zylinder: #1DD1A1;
+    --kegel: #F368E0;
+    --pyramide: #FECA57;
+    --bg: #F0F4FF;
+    --card: #ffffff;
+    --text: #2d3436;
+    --soft: #636e72;
+    --radius: 18px;
+    --shadow: 0 6px 24px rgba(0,0,0,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #6C5CE7 0%, #a29bfe 100%);
+    color: white;
+    padding: 28px 20px 20px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(108,92,231,0.3);
+  }
+  header h1 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.15);
+  }
+  header p {
+    font-size: 1rem;
+    opacity: 0.9;
+    margin-top: 6px;
+  }
+
+  /* SCORE BAR */
+  .score-bar {
+    background: white;
+    border-bottom: 3px solid #e0e0e0;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-wrap: wrap;
+  }
+  .score-item { display: flex; align-items: center; gap: 6px; }
+  .star { font-size: 1.3rem; }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px 16px 0;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: white;
+    border: 3px solid #ddd;
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--soft);
+  }
+  .tab-btn:hover { transform: translateY(-2px); border-color: #6C5CE7; color: #6C5CE7; }
+  .tab-btn.active {
+    background: #6C5CE7;
+    border-color: #6C5CE7;
+    color: white;
+    box-shadow: 0 4px 14px rgba(108,92,231,0.35);
+    transform: translateY(-2px);
+  }
+
+  /* SECTIONS */
+  .section { display: none; padding: 20px 16px; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* BODY CARDS */
+  .body-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+    margin-top: 10px;
+  }
+  .body-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  .body-card:hover { transform: translateY(-4px); }
+  .body-card-top {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    position: relative;
+  }
+  .body-card-label {
+    position: absolute;
+    bottom: 8px;
+    right: 12px;
+    font-size: 0.75rem;
+    background: rgba(0,0,0,0.18);
+    color: white;
+    border-radius: 20px;
+    padding: 2px 10px;
+    font-weight: 700;
+  }
+  .body-card-content { padding: 14px 16px 16px; }
+  .body-card-content h3 { font-family: 'Fredoka One', cursive; font-size: 1.3rem; margin-bottom: 6px; }
+  .body-card-content p { font-size: 0.88rem; color: var(--soft); line-height: 1.5; }
+  .body-card-content .facts {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .fact-chip {
+    background: #f0f4ff;
+    border-radius: 30px;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #6C5CE7;
+  }
+
+  /* QUIZ */
+  .quiz-wrap { max-width: 640px; margin: 0 auto; }
+  .quiz-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    margin-bottom: 18px;
+  }
+  .quiz-question {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: 18px;
+    line-height: 1.45;
+  }
+  .quiz-emoji { font-size: 2.8rem; text-align: center; margin-bottom: 12px; display: block; }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .quiz-opt {
+    background: #f5f6fa;
+    border: 3px solid #e0e0e0;
+    border-radius: 14px;
+    padding: 14px 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.18s;
+    color: var(--text);
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: #6C5CE7; background: #eee9ff; transform: scale(1.02); }
+  .quiz-opt.correct { background: #d4efdf; border-color: #27ae60; color: #1e8449; }
+  .quiz-opt.wrong   { background: #fde8e8; border-color: #e74c3c; color: #c0392b; }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-feedback {
+    margin-top: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-align: center;
+    min-height: 28px;
+  }
+  .feedback-ok  { color: #27ae60; }
+  .feedback-err { color: #e74c3c; }
+  .quiz-progress {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: var(--soft);
+    font-weight: 700;
+  }
+  .progress-bar-wrap { background: #e0e0e0; border-radius: 10px; height: 10px; flex: 1; margin: 0 12px; }
+  .progress-bar-fill { background: #6C5CE7; height: 10px; border-radius: 10px; transition: width 0.4s; }
+  .btn-next {
+    display: block;
+    margin: 16px auto 0;
+    background: #6C5CE7;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 36px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(108,92,231,0.3);
+    transition: transform 0.15s;
+  }
+  .btn-next:hover { transform: scale(1.05); }
+  .quiz-result {
+    text-align: center;
+    padding: 30px 20px;
+  }
+  .quiz-result .big-emoji { font-size: 4rem; }
+  .quiz-result h2 { font-family: 'Fredoka One', cursive; font-size: 1.8rem; margin: 10px 0 6px; }
+  .quiz-result p { color: var(--soft); }
+
+  /* ZUORDNUNG */
+  .zuordnung-wrap { max-width: 700px; margin: 0 auto; }
+  .zuordnung-info {
+    background: white;
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--soft);
+  }
+  .zuordnung-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .zuo-item {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .zuo-item h4 { font-family: 'Fredoka One', cursive; font-size: 1.1rem; }
+  .zuo-emoji { font-size: 2rem; }
+  .zuo-select {
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 8px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .zuo-select:focus { outline: none; border-color: #6C5CE7; }
+  .zuo-select.correct { border-color: #27ae60; background: #d4efdf; }
+  .zuo-select.wrong   { border-color: #e74c3c; background: #fde8e8; }
+  .zuo-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-check {
+    background: #1DD1A1;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 36px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(29,209,161,0.3);
+    transition: transform 0.15s;
+  }
+  .btn-check:hover { transform: scale(1.05); }
+  .btn-reset {
+    background: #dfe6e9;
+    color: var(--text);
+    border: none;
+    border-radius: 50px;
+    padding: 12px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .btn-reset:hover { transform: scale(1.05); }
+  .zuo-result-msg {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-top: 12px;
+    min-height: 30px;
+  }
+
+  /* MEMO */
+  .memo-wrap { max-width: 680px; margin: 0 auto; }
+  .memo-info {
+    background: white;
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-weight: 700;
+  }
+  .memo-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .memo-card {
+    aspect-ratio: 1 / 1.1;
+    border-radius: 14px;
+    cursor: pointer;
+    position: relative;
+    perspective: 600px;
+    min-height: 90px;
+  }
+  .memo-inner {
+    width: 100%; height: 100%;
+    border-radius: 14px;
+    transition: transform 0.45s;
+    transform-style: preserve-3d;
+    position: relative;
+  }
+  .memo-card.flipped .memo-inner { transform: rotateY(180deg); }
+  .memo-card.matched .memo-inner { transform: rotateY(180deg); }
+  .memo-front, .memo-back {
+    position: absolute;
+    width: 100%; height: 100%;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 800;
+    text-align: center;
+    padding: 6px;
+  }
+  .memo-front {
+    background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+    font-size: 1.6rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(108,92,231,0.3);
+  }
+  .memo-back {
+    transform: rotateY(180deg);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+  .memo-card.matched .memo-back {
+    animation: matchPop 0.3s ease;
+  }
+  @keyframes matchPop {
+    0% { transform: rotateY(180deg) scale(1); }
+    50% { transform: rotateY(180deg) scale(1.08); }
+    100% { transform: rotateY(180deg) scale(1); }
+  }
+
+  /* PRINT */
+  @media print {
+    .tabs, .tab-btn, header, .print-btn, .score-bar { display: none !important; }
+    .section { display: block !important; }
+    body { background: white; }
+    .body-card { break-inside: avoid; box-shadow: none; border: 1px solid #ccc; }
+  }
+
+  /* PRINT BUTTON */
+  .print-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #6C5CE7;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(108,92,231,0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 999;
+    transition: transform 0.15s;
+  }
+  .print-btn:hover { transform: scale(1.05); }
+
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .quiz-options { grid-template-columns: 1fr; }
+    .zuordnung-grid { grid-template-columns: 1fr; }
+    .memo-board { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 1.5rem;
+    color: #6C5CE7;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔷 Geometrische Körper</h1>
+  <p>3. Klasse Primarschule · Mathematik / Geometrie</p>
+</header>
+
+<div class="score-bar">
+  <div class="score-item"><span class="star">⭐</span> Punkte: <span id="total-score">0</span></div>
+  <div class="score-item"><span class="star">✅</span> Quiz: <span id="quiz-score">0/0</span></div>
+  <div class="score-item"><span class="star">🃏</span> Memo: <span id="memo-pairs">0/6</span></div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('entdecken')">🔍 Entdecken</button>
+  <button class="tab-btn" onclick="showTab('quiz')">🎯 Quiz</button>
+  <button class="tab-btn" onclick="showTab('zuordnen')">🔗 Zuordnen</button>
+  <button class="tab-btn" onclick="showTab('memo')">🃏 Memo</button>
+</div>
+
+<!-- ===== ENTDECKEN ===== -->
+<div class="section active" id="tab-entdecken">
+  <p class="section-title">🔍 Die 6 geometrischen Körper</p>
+  <div class="body-grid" id="body-grid"></div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="section" id="tab-quiz">
+  <p class="section-title">🎯 Quiz – Wie gut kennst du die Körper?</p>
+  <div class="quiz-wrap">
+    <div class="quiz-card" id="quiz-card">
+      <div class="quiz-progress">
+        <span id="q-num">Frage 1 / 10</span>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="q-bar" style="width:10%"></div></div>
+        <span id="q-pts">0 Punkte</span>
+      </div>
+      <span class="quiz-emoji" id="q-emoji"></span>
+      <div class="quiz-question" id="q-text"></div>
+      <div class="quiz-options" id="q-opts"></div>
+      <div class="quiz-feedback" id="q-feedback"></div>
+    </div>
+    <div class="quiz-result" id="quiz-result" style="display:none">
+      <div class="big-emoji" id="r-emoji"></div>
+      <h2 id="r-title"></h2>
+      <p id="r-msg"></p>
+      <button class="btn-next" style="margin-top:20px" onclick="restartQuiz()">🔄 Nochmal spielen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ZUORDNEN ===== -->
+<div class="section" id="tab-zuordnen">
+  <p class="section-title">🔗 Ordne die Eigenschaften zu</p>
+  <div class="zuordnung-wrap">
+    <div class="zuordnung-info">💡 Wähle für jeden Körper die richtige Beschreibung aus!</div>
+    <div class="zuordnung-grid" id="zuo-grid"></div>
+    <div class="zuo-actions">
+      <button class="btn-check" onclick="checkZuordnung()">✅ Überprüfen</button>
+      <button class="btn-reset" onclick="resetZuordnung()">🔄 Zurücksetzen</button>
+    </div>
+    <div class="zuo-result-msg" id="zuo-msg"></div>
+  </div>
+</div>
+
+<!-- ===== MEMO ===== -->
+<div class="section" id="tab-memo">
+  <p class="section-title">🃏 Memory – Körper & Name</p>
+  <div class="memo-wrap">
+    <div class="memo-info">
+      <span>🏆 Paare gefunden: <strong id="memo-found">0</strong> / 6</span>
+      <span>🔄 Versuche: <strong id="memo-tries">0</strong></span>
+      <button class="btn-next" onclick="initMemo()">Neu mischen</button>
+    </div>
+    <div class="memo-board" id="memo-board"></div>
+    <div class="zuo-result-msg" id="memo-msg"></div>
+  </div>
+</div>
+
+<button class="print-btn" onclick="window.print()">🖨️ Drucken</button>
+
+<script>
+// ===================== DATA =====================
+const bodies = [
+  {
+    id: 'wuerfel',
+    name: 'Würfel',
+    emoji: '🟥',
+    color: '#FF6B6B',
+    desc: 'Der Würfel hat 6 gleich grosse, quadratische Flächen. Alle Seiten sind gleich lang.',
+    facts: ['6 Flächen', '8 Ecken', '12 Kanten'],
+    beschreibung: 'Hat 6 gleiche quadratische Flächen'
+  },
+  {
+    id: 'quader',
+    name: 'Quader',
+    emoji: '🟧',
+    color: '#FF9F43',
+    desc: 'Der Quader sieht aus wie ein Schuhkarton. Er hat 6 rechteckige Flächen.',
+    facts: ['6 Flächen', '8 Ecken', '12 Kanten'],
+    beschreibung: 'Sieht aus wie ein Schuhkarton'
+  },
+  {
+    id: 'kugel',
+    name: 'Kugel',
+    emoji: '⚽',
+    color: '#48DBFB',
+    desc: 'Die Kugel ist rundherum gleichmässig gebogen. Sie hat keine Ecken und keine Kanten.',
+    facts: ['1 Fläche', '0 Ecken', '0 Kanten'],
+    beschreibung: 'Rund, keine Ecken, keine Kanten'
+  },
+  {
+    id: 'zylinder',
+    name: 'Zylinder',
+    emoji: '🥫',
+    color: '#1DD1A1',
+    desc: 'Der Zylinder sieht aus wie eine Konservendose. Er hat zwei runde Flächen oben und unten.',
+    facts: ['3 Flächen', '0 Ecken', '2 Kanten'],
+    beschreibung: 'Wie eine Dose, 2 runde Flächen'
+  },
+  {
+    id: 'kegel',
+    name: 'Kegel',
+    emoji: '🍦',
+    color: '#F368E0',
+    desc: 'Der Kegel hat eine runde Fläche unten und läuft oben spitz zu. Wie ein Eistüten-Becher!',
+    facts: ['2 Flächen', '1 Ecke', '1 Kante'],
+    beschreibung: 'Spitze Spitze oben, rund unten'
+  },
+  {
+    id: 'pyramide',
+    name: 'Pyramide',
+    emoji: '🔺',
+    color: '#FECA57',
+    desc: 'Die Pyramide hat eine quadratische oder dreieckige Grundfläche und läuft oben in eine Spitze.',
+    facts: ['5 Flächen', '5 Ecken', '8 Kanten'],
+    beschreibung: 'Viereck unten, Spitze oben'
+  }
+];
+
+// ===================== STATE =====================
+let state = {
+  quizQ: 0, quizPts: 0, quizTotal: 10, quizAnswered: false,
+  quizQuestions: [],
+  memoFound: 0, memoTries: 0, memoFlipped: [], memoLocked: false,
+  totalScore: 0
+};
+
+function loadState() {
+  const s = localStorage.getItem('geo-bodies-state');
+  if (s) {
+    try {
+      const loaded = JSON.parse(s);
+      state.totalScore = loaded.totalScore || 0;
+      state.quizPts = loaded.quizPts || 0;
+    } catch(e) {}
+  }
+  updateScoreBar();
+}
+function saveState() {
+  localStorage.setItem('geo-bodies-state', JSON.stringify({ totalScore: state.totalScore, quizPts: state.quizPts }));
+}
+
+function updateScoreBar() {
+  document.getElementById('total-score').textContent = state.totalScore;
+  document.getElementById('quiz-score').textContent = state.quizPts + '/' + (state.quizTotal);
+  document.getElementById('memo-pairs').textContent = state.memoFound + '/6';
+}
+
+// ===================== TABS =====================
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===================== ENTDECKEN =====================
+function renderBodies() {
+  const grid = document.getElementById('body-grid');
+  grid.innerHTML = '';
+  bodies.forEach(b => {
+    const card = document.createElement('div');
+    card.className = 'body-card';
+    card.innerHTML = `
+      <div class="body-card-top" style="background:${b.color}20;">
+        <span style="font-size:4rem">${b.emoji}</span>
+        <span class="body-card-label" style="background:${b.color}AA">${b.name}</span>
+      </div>
+      <div class="body-card-content">
+        <h3 style="color:${b.color}">${b.name}</h3>
+        <p>${b.desc}</p>
+        <div class="facts">${b.facts.map(f => `<span class="fact-chip">${f}</span>`).join('')}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ===================== QUIZ =====================
+const allQuestions = [
+  { q: 'Welcher Körper hat 6 gleiche quadratische Flächen?', emoji: '🟥', answer: 'Würfel', opts: ['Würfel','Quader','Pyramide','Zylinder'] },
+  { q: 'Welcher Körper hat KEINE Ecken und KEINE Kanten?', emoji: '⚽', answer: 'Kugel', opts: ['Kugel','Zylinder','Kegel','Quader'] },
+  { q: 'Welcher Körper sieht aus wie eine Konservendose?', emoji: '🥫', answer: 'Zylinder', opts: ['Kegel','Zylinder','Quader','Würfel'] },
+  { q: 'Welcher Körper hat eine Spitze oben und eine runde Fläche unten?', emoji: '🍦', answer: 'Kegel', opts: ['Kegel','Pyramide','Zylinder','Kugel'] },
+  { q: 'Welcher Körper hat 5 Flächen, 5 Ecken und 8 Kanten?', emoji: '🔺', answer: 'Pyramide', opts: ['Quader','Pyramide','Würfel','Kegel'] },
+  { q: 'Wie viele Ecken hat ein Würfel?', emoji: '🔢', answer: '8', opts: ['6','8','12','4'] },
+  { q: 'Wie viele Kanten hat ein Quader?', emoji: '🔢', answer: '12', opts: ['8','6','12','10'] },
+  { q: 'Welcher Körper hat genau 2 runde Flächen?', emoji: '⭕', answer: 'Zylinder', opts: ['Kugel','Kegel','Zylinder','Pyramide'] },
+  { q: 'Welcher Körper sieht aus wie ein Schuhkarton?', emoji: '📦', answer: 'Quader', opts: ['Quader','Würfel','Pyramide','Kegel'] },
+  { q: 'Die Kugel hat … Flächen.', emoji: '⚽', answer: '1', opts: ['0','1','2','3'] },
+  { q: 'Welcher Körper hat KEINE Kanten?', emoji: '🌐', answer: 'Kugel', opts: ['Zylinder','Würfel','Kugel','Kegel'] },
+  { q: 'Wie viele Ecken hat eine Pyramide mit viereckiger Basis?', emoji: '🔺', answer: '5', opts: ['4','5','6','8'] },
+  { q: 'Welcher Körper hat genau 1 Ecke?', emoji: '📍', answer: 'Kegel', opts: ['Pyramide','Würfel','Zylinder','Kegel'] },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function buildQuiz() {
+  state.quizQuestions = shuffle(allQuestions).slice(0, state.quizTotal);
+  state.quizQ = 0;
+  state.quizPts = 0;
+  state.quizAnswered = false;
+}
+
+function renderQuizQuestion() {
+  const q = state.quizQuestions[state.quizQ];
+  document.getElementById('q-num').textContent = `Frage ${state.quizQ + 1} / ${state.quizTotal}`;
+  document.getElementById('q-bar').style.width = ((state.quizQ + 1) / state.quizTotal * 100) + '%';
+  document.getElementById('q-pts').textContent = state.quizPts + ' Punkte';
+  document.getElementById('q-emoji').textContent = q.emoji;
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-feedback').textContent = '';
+  const opts = document.getElementById('q-opts');
+  opts.innerHTML = '';
+  shuffle(q.opts).forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'quiz-opt';
+    btn.textContent = opt;
+    btn.onclick = () => answerQuiz(opt, q.answer, btn);
+    opts.appendChild(btn);
+  });
+  state.quizAnswered = false;
+}
+
+function answerQuiz(chosen, correct, btn) {
+  if (state.quizAnswered) return;
+  state.quizAnswered = true;
+  document.querySelectorAll('.quiz-opt').forEach(b => b.disabled = true);
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    state.quizPts++;
+    state.totalScore += 10;
+    document.getElementById('q-feedback').innerHTML = '<span class="feedback-ok">✅ Richtig! Super gemacht! +10 Punkte</span>';
+  } else {
+    btn.classList.add('wrong');
+    document.querySelectorAll('.quiz-opt').forEach(b => { if (b.textContent === correct) b.classList.add('correct'); });
+    document.getElementById('q-feedback').innerHTML = `<span class="feedback-err">❌ Falsch. Richtig wäre: <strong>${correct}</strong></span>`;
+  }
+  saveState();
+  updateScoreBar();
+  setTimeout(() => {
+    state.quizQ++;
+    if (state.quizQ < state.quizTotal) {
+      renderQuizQuestion();
+    } else {
+      showQuizResult();
+    }
+  }, 1600);
+}
+
+function showQuizResult() {
+  document.getElementById('quiz-card').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  const pct = state.quizPts / state.quizTotal;
+  let emoji, title, msg;
+  if (pct >= 0.9) { emoji = '🏆'; title = 'Wow, Geometrie-Profi!'; msg = 'Du hast fast alles richtig beantwortet. Fantastisch!'; }
+  else if (pct >= 0.7) { emoji = '🌟'; title = 'Sehr gut!'; msg = 'Du kennst die geometrischen Körper schon sehr gut!'; }
+  else if (pct >= 0.5) { emoji = '👍'; title = 'Gut gemacht!'; msg = 'Du machst gute Fortschritte! Üb weiter und du wirst Profi!'; }
+  else { emoji = '💪'; title = 'Weiter üben!'; msg = 'Schau die Körper nochmal im Bereich «Entdecken» an und versuche es erneut!'; }
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = title;
+  document.getElementById('r-msg').textContent = `${state.quizPts} von ${state.quizTotal} Fragen richtig. ${msg}`;
+}
+
+function restartQuiz() {
+  document.getElementById('quiz-card').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  buildQuiz();
+  renderQuizQuestion();
+}
+
+// ===================== ZUORDNUNG =====================
+const zuoData = [
+  { body: 'Würfel', color: '#FF6B6B', emoji: '🟥', desc: 'Hat 6 gleiche quadratische Flächen' },
+  { body: 'Quader', color: '#FF9F43', emoji: '🟧', desc: 'Sieht aus wie ein Schuhkarton' },
+  { body: 'Kugel',  color: '#48DBFB', emoji: '⚽', desc: 'Rund, keine Ecken, keine Kanten' },
+  { body: 'Zylinder', color: '#1DD1A1', emoji: '🥫', desc: 'Wie eine Dose, 2 runde Flächen' },
+  { body: 'Kegel', color: '#F368E0', emoji: '🍦', desc: 'Spitze Spitze oben, rund unten' },
+  { body: 'Pyramide', color: '#FECA57', emoji: '🔺', desc: 'Viereck unten, Spitze oben' },
+];
+
+const zuoOptions = [
+  'Hat 6 gleiche quadratische Flächen',
+  'Sieht aus wie ein Schuhkarton',
+  'Rund, keine Ecken, keine Kanten',
+  'Wie eine Dose, 2 runde Flächen',
+  'Spitze Spitze oben, rund unten',
+  'Viereck unten, Spitze oben',
+];
+
+function renderZuordnung() {
+  const grid = document.getElementById('zuo-grid');
+  grid.innerHTML = '';
+  zuoData.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'zuo-item';
+    div.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="zuo-emoji">${item.emoji}</span>
+        <h4 style="color:${item.color}">${item.body}</h4>
+      </div>
+      <select class="zuo-select" id="zuo-sel-${i}" onchange="saveZuordnung()">
+        <option value="">– Bitte wählen –</option>
+        ${zuoOptions.map(o => `<option value="${o}">${o}</option>`).join('')}
+      </select>
+    `;
+    grid.appendChild(div);
+  });
+  loadZuordnung();
+}
+
+function saveZuordnung() {
+  const vals = zuoData.map((_, i) => document.getElementById('zuo-sel-' + i)?.value || '');
+  localStorage.setItem('geo-zuo', JSON.stringify(vals));
+}
+function loadZuordnung() {
+  const saved = localStorage.getItem('geo-zuo');
+  if (!saved) return;
+  const vals = JSON.parse(saved);
+  vals.forEach((v, i) => {
+    const sel = document.getElementById('zuo-sel-' + i);
+    if (sel) sel.value = v;
+  });
+}
+function resetZuordnung() {
+  zuoData.forEach((_, i) => {
+    const sel = document.getElementById('zuo-sel-' + i);
+    if (sel) { sel.value = ''; sel.className = 'zuo-select'; }
+  });
+  document.getElementById('zuo-msg').textContent = '';
+  localStorage.removeItem('geo-zuo');
+}
+function checkZuordnung() {
+  let correct = 0;
+  zuoData.forEach((item, i) => {
+    const sel = document.getElementById('zuo-sel-' + i);
+    if (!sel) return;
+    sel.className = 'zuo-select';
+    if (sel.value === item.desc) {
+      sel.classList.add('correct'); correct++;
+    } else if (sel.value !== '') {
+      sel.classList.add('wrong');
+    }
+  });
+  const msg = document.getElementById('zuo-msg');
+  if (correct === 6) {
+    msg.innerHTML = '🏆 Alle 6 richtig! Fantastisch!';
+    state.totalScore += 20;
+    saveState();
+    updateScoreBar();
+  } else {
+    msg.innerHTML = `✅ ${correct} von 6 richtig. Versuche nochmal!`;
+  }
+}
+
+// ===================== MEMO =====================
+const memoPairs = bodies.map(b => [
+  { type: 'emoji', value: b.emoji, id: b.id, color: b.color },
+  { type: 'name',  value: b.name,  id: b.id, color: b.color }
+]);
+
+function initMemo() {
+  state.memoFound = 0;
+  state.memoTries = 0;
+  state.memoFlipped = [];
+  state.memoLocked = false;
+  document.getElementById('memo-found').textContent = 0;
+  document.getElementById('memo-tries').textContent = 0;
+  document.getElementById('memo-msg').textContent = '';
+  document.getElementById('memo-pairs').textContent = '0/6';
+  const all = shuffle([...memoPairs.flat()]);
+  const board = document.getElementById('memo-board');
+  board.innerHTML = '';
+  all.forEach((card, idx) => {
+    const div = document.createElement('div');
+    div.className = 'memo-card';
+    div.dataset.id = card.id;
+    div.dataset.idx = idx;
+    div.innerHTML = `
+      <div class="memo-inner">
+        <div class="memo-front">🔷</div>
+        <div class="memo-back" style="background:${card.color}22;color:${card.color};border:3px solid ${card.color}55;">
+          ${card.value}
+        </div>
+      </div>
+    `;
+    div.onclick = () => flipMemo(div);
+    board.appendChild(div);
+  });
+}
+
+function flipMemo(card) {
+  if (state.memoLocked) return;
+  if (card.classList.contains('flipped') || card.classList.contains('matched')) return;
+  card.classList.add('flipped');
+  state.memoFlipped.push(card);
+  if (state.memoFlipped.length === 2) {
+    state.memoTries++;
+    document.getElementById('memo-tries').textContent = state.memoTries;
+    state.memoLocked = true;
+    const [a, b] = state.memoFlipped;
+    if (a.dataset.id === b.dataset.id) {
+      a.classList.add('matched');
+      b.classList.add('matched');
+      state.memoFound++;
+      state.memoFlipped = [];
+      state.memoLocked = false;
+      document.getElementById('memo-found').textContent = state.memoFound;
+      document.getElementById('memo-pairs').textContent = state.memoFound + '/6';
+      if (state.memoFound === 6) {
+        state.totalScore += 30;
+        saveState();
+        updateScoreBar();
+        document.getElementById('memo-msg').innerHTML = `🏆 Alle Paare gefunden in ${state.memoTries} Versuchen! +30 Punkte!`;
+      }
+    } else {
+      setTimeout(() => {
+        a.classList.remove('flipped');
+        b.classList.remove('flipped');
+        state.memoFlipped = [];
+        state.memoLocked = false;
+      }, 900);
+    }
+  }
+}
+
+// ===================== INIT =====================
+loadState();
+renderBodies();
+buildQuiz();
+renderQuizQuestion();
+renderZuordnung();
+initMemo();
+</script>
+</body>
+</html>
